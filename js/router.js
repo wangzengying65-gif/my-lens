@@ -28,29 +28,26 @@
     currentRoute = parsed.name;
     currentParams = parsed.param;
 
-    var main = document.getElementById('main');
-    main.style.opacity = '0';
-
     Data.load().then(function () {
-      switch (currentRoute) {
-        case 'home':
-          Render.home();
-          break;
-        case 'detail':
-          Render.detail(currentParams);
-          break;
-        case 'tag':
-          Render.tag(currentParams);
-          break;
+      try {
+        switch (currentRoute) {
+          case 'home':
+            Render.home();
+            break;
+          case 'detail':
+            Render.detail(currentParams);
+            break;
+          case 'tag':
+            Render.tag(currentParams);
+            break;
+        }
+      } catch (e) {
+        document.getElementById('main').innerHTML = '<p style="color:red;padding:20px;">Error: ' + e.message + '</p>';
       }
-      setTimeout(function () { main.style.opacity = '1'; }, 50);
     });
   }
 
   window.addEventListener('hashchange', onRouteChange);
-
-  var main = document.getElementById('main');
-  main.style.transition = 'opacity 0.25s ease';
 
   Data.load().then(function () {
     onRouteChange();
