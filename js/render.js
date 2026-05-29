@@ -2,10 +2,10 @@ var Render = (function () {
   'use strict';
 
   var PLACEHOLDER_SVGS = [
-    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f97316" stop-opacity="0.3"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0.15"/></linearGradient></defs><rect width="400" height="300" fill="url(#g1)"/><circle cx="200" cy="130" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><polygon points="188,118 188,142 218,130" fill="rgba(255,255,255,0.15)"/></svg>',
-    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/><stop offset="100%" stop-color="#f97316" stop-opacity="0.15"/></linearGradient></defs><rect width="400" height="300" fill="url(#g2)"/><circle cx="200" cy="130" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><polygon points="188,118 188,142 218,130" fill="rgba(255,255,255,0.15)"/></svg>',
-    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ec4899" stop-opacity="0.25"/><stop offset="100%" stop-color="#f43f5e" stop-opacity="0.1"/></linearGradient></defs><rect width="400" height="300" fill="url(#g3)"/><circle cx="200" cy="130" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><polygon points="188,118 188,142 218,130" fill="rgba(255,255,255,0.15)"/></svg>',
-    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c" stop-opacity="0.25"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0.1"/></linearGradient></defs><rect width="400" height="300" fill="url(#g4)"/><circle cx="200" cy="130" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><polygon points="188,118 188,142 218,130" fill="rgba(255,255,255,0.15)"/></svg>'
+    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="rgba(255,255,255,0.03)"/><circle cx="190" cy="140" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/><circle cx="210" cy="140" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/><circle cx="200" cy="140" r="32" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/></svg>',
+    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="rgba(255,255,255,0.02)"/><rect x="155" y="115" width="90" height="70" rx="8" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/><circle cx="200" cy="150" r="16" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/></svg>',
+    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="rgba(255,255,255,0.03)"/><circle cx="200" cy="135" r="45" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><polyline points="175,155 200,180 225,130" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="rgba(255,255,255,0.02)"/><circle cx="160" cy="140" r="24" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><circle cx="220" cy="130" r="18" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><circle cx="230" cy="160" r="12" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>'
   ];
 
   function el(tag, attrs, children) {
@@ -74,104 +74,43 @@ var Render = (function () {
     return container;
   }
 
-  /* ===== Home: Fullscreen Carousel ===== */
+  /* ===== Home: Grid Layout ===== */
   function home(posts) {
     var main = document.getElementById('main');
     main.innerHTML = '';
-    main.className = 'main home-mode';
+    main.className = 'main';
 
     Render.nav(null);
 
     if (!posts || posts.length === 0) {
-      main.className = 'main';
       main.appendChild(emptyState());
       return;
     }
 
-    var carousel = el('div', { className: 'carousel' });
-    var dots = el('div', { className: 'carousel-dots' });
-    var dotEls = [];
-    var slideEls = [];
+    var grid = el('div', { className: 'posts-grid' });
+    var allPosts = Data.getAll();
 
     for (var i = 0; i < posts.length; i++) {
       var post = posts[i];
-      var firstSrc = post.photos[0];
-      var isVid = isVideo(firstSrc);
+      var globalIdx = allPosts.indexOf(post);
 
-      /* Slide */
-      var slide = el('div', {
-        className: 'carousel-slide',
+      var card = el('div', {
+        className: 'post-card',
         onClick: function (p) {
           return function () { location.hash = '#/post/' + p.id; };
         }(post)
       });
 
-      /* Background */
-      if (isVid) {
-        var ph = el('div', { className: 'slide-placeholder' });
-        ph.innerHTML = placeholderSVG(i);
-        slide.appendChild(ph);
-        var playHint = el('div', { className: 'slide-hint', textContent: '▶ 点击播放视频' });
-        playHint.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;font-size:1rem;color:rgba(255,255,255,0.5);pointer-events:none;';
-        slide.appendChild(playHint);
-      } else {
-        var bg = el('div', { className: 'slide-bg' });
-        bg.style.backgroundImage = 'url(' + firstSrc + ')';
-        /* lazy load bg */
-        var testImg = new Image();
-        testImg.onload = function (b) { return function () { b.style.backgroundImage = 'url(' + firstSrc + ')'; }; }(bg);
-        testImg.src = firstSrc;
-        slide.appendChild(bg);
-      }
+      card.appendChild(createPhotoImg(post.photos[0], globalIdx));
 
-      /* Overlay gradient */
-      slide.appendChild(el('div', { className: 'slide-overlay' }));
-
-      /* Text content */
-      var content = el('div', { className: 'slide-content' });
-      content.appendChild(el('div', { className: 'slide-date', textContent: post.date }));
-      content.appendChild(el('div', { className: 'slide-title', textContent: post.title }));
-      if (post.description) {
-        content.appendChild(el('div', { className: 'slide-desc', textContent: post.description }));
-      }
-      content.appendChild(el('div', { className: 'slide-hint', textContent: '点击查看' }));
-      slide.appendChild(content);
-
-      carousel.appendChild(slide);
-      slideEls.push(slide);
-
-      /* Dot */
-      var dot = el('button', {
-        className: 'carousel-dot' + (i === 0 ? ' active' : ''),
-        onClick: function (idx) {
-          return function (e) {
-            e.stopPropagation();
-            slideEls[idx].scrollIntoView({ behavior: 'smooth' });
-          };
-        }(i)
-      });
-      dots.appendChild(dot);
-      dotEls.push(dot);
+      var body = el('div', { className: 'card-body' });
+      body.appendChild(el('div', { className: 'card-date', textContent: post.date }));
+      body.appendChild(el('div', { className: 'card-title', textContent: post.title }));
+      card.appendChild(body);
+      grid.appendChild(card);
     }
 
-    /* Update dots on scroll */
-    var scrollTimeout;
-    carousel.addEventListener('scroll', function () {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(function () {
-        var scrollTop = carousel.scrollTop;
-        var h = carousel.clientHeight;
-        var idx = Math.round(scrollTop / h);
-        if (idx >= 0 && idx < dotEls.length) {
-          for (var d = 0; d < dotEls.length; d++) {
-            dotEls[d].classList.toggle('active', d === idx);
-          }
-        }
-      }, 100);
-    });
-
-    main.appendChild(carousel);
-    main.appendChild(dots);
+    main.appendChild(grid);
   }
 
   /* ===== Detail ===== */
