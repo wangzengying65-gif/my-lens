@@ -74,45 +74,111 @@ var Render = (function () {
     return container;
   }
 
-  /* ===== Home ===== */
+  /* ===== Home: Fullscreen Carousel ===== */
   function home(posts) {
     var main = document.getElementById('main');
     main.innerHTML = '';
+    main.className = 'main home-mode';
 
     Render.nav(null);
 
     if (!posts || posts.length === 0) {
+      main.className = 'main';
       main.appendChild(emptyState());
       return;
     }
 
-    var grid = el('div', { className: 'posts-grid' });
+    var carousel = el('div', { className: 'carousel' });
+    var dots = el('div', { className: 'carousel-dots' });
+    var dotEls = [];
+    var slideEls = [];
 
     for (var i = 0; i < posts.length; i++) {
       var post = posts[i];
-      var card = el('div', {
-        className: 'post-card',
+      var firstSrc = post.photos[0];
+      var isVid = isVideo(firstSrc);
+
+      /* Slide */
+      var slide = el('div', {
+        className: 'carousel-slide',
         onClick: function (p) {
           return function () { location.hash = '#/post/' + p.id; };
         }(post)
       });
 
-      card.appendChild(createPhotoImg(post.photos[0], i));
+      /* Background */
+      if (isVid) {
+        var ph = el('div', { className: 'slide-placeholder' });
+        ph.innerHTML = placeholderSVG(i);
+        slide.appendChild(ph);
+        var playHint = el('div', { className: 'slide-hint', textContent: '▶ 点击播放视频' });
+        playHint.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;font-size:1rem;color:rgba(255,255,255,0.5);pointer-events:none;';
+        slide.appendChild(playHint);
+      } else {
+        var bg = el('div', { className: 'slide-bg' });
+        bg.style.backgroundImage = 'url(' + firstSrc + ')';
+        /* lazy load bg */
+        var testImg = new Image();
+        testImg.onload = function (b) { return function () { b.style.backgroundImage = 'url(' + firstSrc + ')'; }; }(bg);
+        testImg.src = firstSrc;
+        slide.appendChild(bg);
+      }
 
-      var body = el('div', { className: 'card-body' });
-      body.appendChild(el('div', { className: 'card-date', textContent: post.date }));
-      body.appendChild(el('div', { className: 'card-title', textContent: post.title }));
-      card.appendChild(body);
-      grid.appendChild(card);
+      /* Overlay gradient */
+      slide.appendChild(el('div', { className: 'slide-overlay' }));
+
+      /* Text content */
+      var content = el('div', { className: 'slide-content' });
+      content.appendChild(el('div', { className: 'slide-date', textContent: post.date }));
+      content.appendChild(el('div', { className: 'slide-title', textContent: post.title }));
+      if (post.description) {
+        content.appendChild(el('div', { className: 'slide-desc', textContent: post.description }));
+      }
+      content.appendChild(el('div', { className: 'slide-hint', textContent: '点击查看' }));
+      slide.appendChild(content);
+
+      carousel.appendChild(slide);
+      slideEls.push(slide);
+
+      /* Dot */
+      var dot = el('button', {
+        className: 'carousel-dot' + (i === 0 ? ' active' : ''),
+        onClick: function (idx) {
+          return function (e) {
+            e.stopPropagation();
+            slideEls[idx].scrollIntoView({ behavior: 'smooth' });
+          };
+        }(i)
+      });
+      dots.appendChild(dot);
+      dotEls.push(dot);
     }
 
-    main.appendChild(grid);
+    /* Update dots on scroll */
+    var scrollTimeout;
+    carousel.addEventListener('scroll', function () {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(function () {
+        var scrollTop = carousel.scrollTop;
+        var h = carousel.clientHeight;
+        var idx = Math.round(scrollTop / h);
+        if (idx >= 0 && idx < dotEls.length) {
+          for (var d = 0; d < dotEls.length; d++) {
+            dotEls[d].classList.toggle('active', d === idx);
+          }
+        }
+      }, 100);
+    });
+
+    main.appendChild(carousel);
+    main.appendChild(dots);
   }
 
   /* ===== Detail ===== */
   function detail(id) {
     var post = Data.getById(id);
     var main = document.getElementById('main');
+    main.className = 'main';
     main.innerHTML = '';
 
     Render.nav(null);
@@ -254,6 +320,7 @@ var Render = (function () {
     var decoded = decodeURIComponent(tagName);
     var posts = Data.getByTag(decoded);
     var main = document.getElementById('main');
+    main.className = 'main';
     main.innerHTML = '';
 
     Render.nav(decoded);
