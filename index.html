@@ -14,9 +14,7 @@
     </div>
   </nav>
 
-  <main class="main" id="main">
-    <p style="color:#fff;padding:20px;">加载中...</p>
-  </main>
+  <main class="main" id="main"></main>
 
   <div class="toast" id="toast"></div>
 
@@ -24,13 +22,5 @@
   <script src="js/data.js"></script>
   <script src="js/render.js"></script>
   <script src="js/router.js"></script>
-  <script>
-    (function() {
-      var dbg = document.createElement('div');
-      dbg.style.cssText = 'position:fixed;bottom:10px;left:10px;background:#333;color:#0f0;padding:8px 12px;border-radius:8px;font-size:12px;z-index:999;font-family:monospace;';
-      dbg.textContent = 'JS OK | posts:' + (window.POSTS_DATA ? window.POSTS_DATA.length : 'undefined') + ' | Data:' + (typeof Data !== 'undefined' ? 'yes' : 'no');
-      document.body.appendChild(dbg);
-    })();
-  </script>
 </body>
 </html>
