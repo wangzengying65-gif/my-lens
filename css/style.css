@@ -242,10 +242,23 @@ img {
   object-fit: contain;
   transition: opacity 0.3s ease;
   opacity: 0;
+  z-index: 1;
 }
 
 .photo-stage video.active {
   opacity: 1;
+  z-index: 2;
+}
+
+.photo-stage .placeholder {
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(236, 72, 153, 0.1));
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-body {
@@ -328,15 +341,6 @@ img {
 
 .photo-stage img.active {
   opacity: 1;
-}
-
-.photo-stage .placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(236, 72, 153, 0.1));
 }
 
 .photo-stage .placeholder svg {

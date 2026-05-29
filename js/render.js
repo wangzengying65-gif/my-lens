@@ -60,7 +60,7 @@ var Render = (function () {
 
     var media;
     if (isVideo(src)) {
-      media = el('video', { src: src, preload: 'metadata', className: className || '' });
+      media = el('video', { src: src, preload: 'auto', playsinline: '', className: className || '' });
       media.addEventListener('loadeddata', function () { wrapper.style.display = 'none'; });
     } else {
       media = el('img', { src: src, alt: '', loading: 'lazy', className: className || '' });
@@ -148,6 +148,8 @@ var Render = (function () {
         mediaEl = el('video', {
           src: src,
           controls: '',
+          playsinline: '',
+          preload: 'auto',
           className: i === 0 ? 'active' : ''
         });
         mediaEl.addEventListener('loadeddata', function (div) {
