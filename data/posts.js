@@ -22,5 +22,39 @@ var POSTS_DATA = [
       "photos/7ed4d01cad7be866dbb0006fe312bf58.jpg"
     ],
     "tags": ["日常"]
+  },
+  {
+    "id": "record-3",
+    "date": "2026-05-29",
+    "title": "实况记录",
+    "description": "",
+    "photos": [
+      "photos/bd12dc43e4a6a3f12021bdf37d8adb7c.mp4",
+      "photos/267a86600ba20b4ac412eb77a261e207.jpg"
+    ],
+    "tags": ["日常"]
+  },
+  {
+    "id": "record-4",
+    "date": "2026-05-29",
+    "title": "生活记录（三）",
+    "description": "",
+    "photos": [
+      "photos/b92e7832c38d01902d9ad321612b7172.jpg",
+      "photos/d1cd0322c8574d164b46b3d4ed62b261.jpg"
+    ],
+    "tags": ["日常"]
+  },
+  {
+    "id": "record-5",
+    "date": "2026-05-29",
+    "title": "生活记录（四）",
+    "description": "",
+    "photos": [
+      "photos/12d216069aea559c266fa0902d45f1de.jpg",
+      "photos/89ed5c8139fdbc7b5f8088247093d82d.jpg",
+      "photos/a4d8b76d662ca81fc0945516abb8c714.jpg"
+    ],
+    "tags": ["日常"]
   }
 ];

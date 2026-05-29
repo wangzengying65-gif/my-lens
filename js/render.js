@@ -43,28 +43,34 @@ var Render = (function () {
     return PLACEHOLDER_SVGS[index % PLACEHOLDER_SVGS.length];
   }
 
+  function isVideo(src) {
+    return /\.(mp4|mov|webm)$/i.test(src);
+  }
+
   function createPhotoImg(src, placeholderIdx, className) {
     var wrapper = el('div', { className: 'placeholder' });
     wrapper.innerHTML = placeholderSVG(placeholderIdx || 0);
 
-    var img = el('img', {
-      src: src,
-      alt: '',
-      loading: 'lazy',
-      className: className || ''
-    });
-
-    img.addEventListener('load', function () {
-      wrapper.style.display = 'none';
-    });
-
-    img.addEventListener('error', function () {
-      img.style.display = 'none';
-    });
-
     var container = el('div', { className: 'card-image' });
+
+    if (isVideo(src)) {
+      var playIcon = el('div', { className: 'play-icon', innerHTML: '<svg viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>' });
+      container.appendChild(playIcon);
+    }
+
+    var media;
+    if (isVideo(src)) {
+      media = el('video', { src: src, preload: 'metadata', className: className || '' });
+      media.addEventListener('loadeddata', function () { wrapper.style.display = 'none'; });
+    } else {
+      media = el('img', { src: src, alt: '', loading: 'lazy', className: className || '' });
+      media.addEventListener('load', function () { wrapper.style.display = 'none'; });
+    }
+
+    media.addEventListener('error', function () { media.style.display = 'none'; });
+
     container.appendChild(wrapper);
-    container.appendChild(img);
+    container.appendChild(media);
     return container;
   }
 
@@ -133,24 +139,37 @@ var Render = (function () {
     var currentIdx = 0;
 
     for (var i = 0; i < post.photos.length; i++) {
+      var src = post.photos[i];
       var placeholderDiv = el('div', { className: 'placeholder' });
       placeholderDiv.innerHTML = placeholderSVG(i);
 
-      var imgEl = el('img', {
-        src: post.photos[i],
-        alt: '',
-        className: i === 0 ? 'active' : ''
-      });
-      imgEl.addEventListener('load', function (div) {
-        return function () { div.style.display = 'none'; };
-      }(placeholderDiv));
-      imgEl.addEventListener('error', function (img) {
-        return function () { img.style.display = 'none'; };
-      }(imgEl));
+      var mediaEl;
+      if (isVideo(src)) {
+        mediaEl = el('video', {
+          src: src,
+          controls: '',
+          className: i === 0 ? 'active' : ''
+        });
+        mediaEl.addEventListener('loadeddata', function (div) {
+          return function () { div.style.display = 'none'; };
+        }(placeholderDiv));
+      } else {
+        mediaEl = el('img', {
+          src: src,
+          alt: '',
+          className: i === 0 ? 'active' : ''
+        });
+        mediaEl.addEventListener('load', function (div) {
+          return function () { div.style.display = 'none'; };
+        }(placeholderDiv));
+      }
+      mediaEl.addEventListener('error', function (el) {
+        return function () { el.style.display = 'none'; };
+      }(mediaEl));
 
       stage.appendChild(placeholderDiv);
-      stage.appendChild(imgEl);
-      imgs.push(imgEl);
+      stage.appendChild(mediaEl);
+      imgs.push(mediaEl);
     }
 
     function updatePhoto() {
